@@ -2,22 +2,19 @@ body {
   font-family: Papyrus, fantasy;
   font-size: 20px;
   text-align: center;
-  background: #f4f4f4;
   margin: 0;
   padding: 20px;
   background: url('gaia.jpg') no-repeat center center fixed;
   background-size: cover;
   position: relative;
 }
+
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.4); /* 0.4 = 40% opacity */
-  z-index: -1; /* Behind everything */
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.4);
+  z-index: -1;
 }
 
 h1 {
@@ -33,16 +30,47 @@ h1 {
 .column {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(8, auto);
-  gap: 16px; 
+  gap: 16px;
 }
 
+/* ---------- BLOCK BASE ---------- */
 .block {
   width: 350px;
   height: 60px;
-  perspective: 800px;
+  border-radius: 6px;
+  box-sizing: border-box;
   cursor: pointer;
-  box-sizing: border-box; /* include border/padding */
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- LEFT (SITUATION) ---------- */
+#left .block {
+  background-color: #ff6666;
+  color: black;
+  font-size: 22px;
+  transition: all 0.25s ease;
+}
+
+#left .block.selected {
+  background-color: #E0115F;
+  box-shadow: 0 0 10px rgba(255, 102, 102, 0.6);
+  color: white;
+}
+
+#left .block.matched-success {
+  color: gray;
+  background-color: #2ecc71;
+  font-size: 24px;
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.9);
+  cursor: default;
+}
+
+/* ---------- RIGHT (SOLUTION - FLIP) ---------- */
+#right .block {
+  perspective: 800px;
 }
 
 .inner {
@@ -51,9 +79,6 @@ h1 {
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.25s;
-  border-radius: 6px;
-  transform-origin: center center; /* fix shift when flipping */
-  box-sizing: border-box;
 }
 
 .block.open .inner,
@@ -61,58 +86,42 @@ h1 {
   transform: rotateY(180deg);
 }
 
-.front,
-.back {
+#right .block.paired .back {
+  background-color:  #39ff14;
+  color: lightblue;
+  border-color: none;
+  font-size: 24px;
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.6);
+}
+
+.front, .back {
   position: absolute;
-  top: 0;      /* ensure top-left alignment */
-  left: 0;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box; /* include padding/border in width */
+  inset: 0;
+  border-radius: 6px;
+  border: 2px solid #3399ff;
   backface-visibility: hidden;
-  border: 2px solid #444;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  border-radius: 6px;
-  padding: 5px;
-  text-align: center;
-}
-#left .front {
-  background-color: #ffb3b3; /* light red */
-  color: rgba(255,255,255,0.6);
-  font-weight: bold;
-  border-color: #ff6666;
+  font-size: 24px;
+  padding: 6px;
+  box-sizing: border-box;
 }
 
-#right .front {
-  background-color: #b3d9ff; /* light blue */
-  color: rgba(255,255,255,0.6);
-  font-weight: bold;
-  border-color: #3399ff;
-} 
+.front {
+  background-color: #b3d9ff;
+  color: rgba(255, 255, 255, 0.9);
+}
 
 .back {
-  background: #fff;
+  background: white;
   color: #444;
   transform: rotateY(180deg);
 }
 
-/* Hover effect for closed cards only */
-.block:hover:not(.paired) .front {
-  filter: brightness(1.2);
-}
-
-.paired {
-  cursor: default;
-  border-color: #2ecc71;
-}
-
+/* ---------- MESSAGE ---------- */
 #message {
   margin-top: 20px;
   font-weight: bold;
   font-size: 18px;
 }
-
-

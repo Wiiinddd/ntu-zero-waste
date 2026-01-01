@@ -5,9 +5,9 @@ const message = document.getElementById('message');
 let selectedLeft = null;
 let selectedRight = null;
 let pairs = 0;
-let lockBoard = false; // Prevent clicking while flipping back
+let lockBoard = false;
 
-// Left column items
+/* ---------- DATA ---------- */
 const leftItems = [
   "Plastic packet drinks",
   "Plastic takeaway lid",
@@ -23,10 +23,9 @@ const leftItems = [
   "Plastic egg carton",
   "Plastic packaging for snacks",
   "Disposable ice cream cup/spoon",
-  "Plastic condiment packets (chili sauce, ketchup)"
+  "Plastic condiment packets"
 ];
 
-// Right column matching solutions
 const rightItems = [
   "Fill your own reusable tumbler",
   "Use a container with a secure lid",
@@ -38,109 +37,104 @@ const rightItems = [
   "Carry a reusable water bottle",
   "Bring your own reusable tumbler",
   "Use a washable cloth napkin",
-  "Use your own glass jar / container",
-  "Buy eggs in a refillable egg tray",
-  "Buy bulk snacks with your own container",
-  "Bring a small reusable dessert cup + spoon",
-  "Carry a small refillable sauce container"
+  "Use your own glass jar",
+  "Buy eggs in refillable tray",
+  "Buy bulk snacks with container",
+  "Bring reusable dessert cup",
+  "Carry refillable sauce container"
 ];
 
-// Generate blocks dynamically
+/* ---------- CREATE BLOCKS ---------- */
 function createBlocks() {
-  leftItems.forEach((item, index) => {
-    const leftBlock = createBlock(index, item, 'left');
-    leftContainer.appendChild(leftBlock);
+  leftItems.forEach((text, id) => {
+    const block = document.createElement('div');
+    block.className = 'block';
+    block.dataset.id = id;
+    block.textContent = text;
+
+    block.addEventListener('click', () => handleLeft(block));
+    leftContainer.appendChild(block);
   });
 
-  rightItems.forEach((item, index) => {
-    const rightBlock = createBlock(index, item, 'right');
-    rightContainer.appendChild(rightBlock);
+  rightItems.forEach((text, id) => {
+    const block = document.createElement('div');
+    block.className = 'block';
+    block.dataset.id = id;
+
+    block.innerHTML = `
+      <div class="inner">
+        <div class="front"></div>
+        <div class="back">${text}</div>
+      </div>
+    `;
+
+    block.addEventListener('click', () => handleRight(block));
+    rightContainer.appendChild(block);
   });
 }
 
-// Helper to create a block element
-function createBlock(id, text, side) {
-  const block = document.createElement('div');
-  block.classList.add('block');
-  block.dataset.id = id;
+/* ---------- SHUFFLE ---------- */
+function shuffle(container) {
+  [...container.children]
+    .sort(() => Math.random() - 0.5)
+    .forEach(el => container.appendChild(el));
+}
 
-  let back_text;
-  if (side === 'left') {
-    back_text = 'Situation';
-  } else {
-    back_text = 'Solution';
+/* ---------- CLICK HANDLERS ---------- */
+function handleLeft(block) {
+  if (lockBoard || block.classList.contains('matched-success')) return;
+
+  if (selectedLeft && selectedLeft !== block) {
+    selectedLeft.classList.remove('selected');
   }
 
-  block.innerHTML = `
-    <div class="inner">
-      <div class="front">${back_text}</div>
-      <div class="back">${text}</div>
-    </div>
-  `;
+  block.classList.add('selected');
+  selectedLeft = block;
 
-  block.addEventListener('click', () => handleClick(block));
-  return block;
+  if (selectedRight) checkPair();
 }
 
-// Shuffle left and right columns
-function shuffleColumns() {
-  shuffleBlocks(leftContainer);
-  shuffleBlocks(rightContainer);
-}
-
-function shuffleBlocks(container) {
-  const blocks = Array.from(container.children);
-  for (let i = blocks.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    container.appendChild(blocks[j]);
+function handleRight(block) {
+  if (lockBoard || block.classList.contains('paired')) return;
+  
+  if (selectedRight && !selectedRight.classList.contains('paired')) {
+    selectedRight.classList.remove('open');
   }
-}
-
-// Handle block click
-function handleClick(block) {
-  if (lockBoard) return;
-  if (block.classList.contains('paired') || block.classList.contains('open')) return;
 
   block.classList.add('open');
+  selectedRight = block;
 
-  if (block.parentElement.id === 'left') {
-    if (selectedLeft) selectedLeft.classList.remove('open');
-    selectedLeft = block;
-  } else {
-    if (selectedRight) selectedRight.classList.remove('open');
-    selectedRight = block;
-  }
-
-  checkPair();
+  if (selectedLeft) checkPair();
 }
 
-// Check if selected left and right blocks match
+/* ---------- PAIR CHECK ---------- */
 function checkPair() {
-  if (!selectedLeft || !selectedRight) return;
+  const leftId = selectedLeft.dataset.id;
+  const rightId = selectedRight.dataset.id;
 
-  if (selectedLeft.dataset.id === selectedRight.dataset.id) {
-    // Correct pair
-    selectedLeft.classList.add('paired');
+  if (leftId === rightId) {
+    selectedLeft.classList.remove('selected');
+    selectedLeft.classList.add('matched-success');
     selectedRight.classList.add('paired');
+
     message.textContent = `Correct! (${++pairs}/15)`;
 
     selectedLeft = null;
     selectedRight = null;
   } else {
-    // Wrong pair → flip back after delay
     message.textContent = 'Wrong pair!';
     lockBoard = true;
 
     setTimeout(() => {
-      selectedLeft.classList.remove('open');
+      selectedLeft.classList.remove('selected');
       selectedRight.classList.remove('open');
       selectedLeft = null;
       selectedRight = null;
       lockBoard = false;
-    }, 1000);
+    }, 900);
   }
 }
 
-// Initialize game
+/* ---------- INIT ---------- */
 createBlocks();
-shuffleColumns();
+shuffle(rightContainer);
