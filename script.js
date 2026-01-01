@@ -7,25 +7,73 @@ let selectedRight = null;
 let pairs = 0;
 let lockBoard = false; // Prevent clicking while flipping back
 
+// Left column items
+const leftItems = [
+  "Plastic packet drinks",
+  "Plastic takeaway lid",
+  "Single-use bubble tea carrier",
+  "Disposable chopsticks",
+  "Plastic sushi tray",
+  "Disposable plastic bag",
+  "Plastic straws",
+  "Single-use plastic water bottle",
+  "Disposable coffee cup",
+  "Single-use tissue",
+  "Disposable salad container",
+  "Plastic egg carton",
+  "Plastic packaging for snacks",
+  "Disposable ice cream cup/spoon",
+  "Plastic condiment packets (chili sauce, ketchup)"
+];
+
+// Right column matching solutions
+const rightItems = [
+  "Fill your own reusable tumbler",
+  "Use a container with a secure lid",
+  "Use a reusable cup holder sling",
+  "Bring reusable chopsticks",
+  "Carry a bento box",
+  "Bring your own tote bag",
+  "Use a metal / bamboo straw",
+  "Carry a reusable water bottle",
+  "Bring your own reusable tumbler",
+  "Use a washable cloth napkin",
+  "Use your own glass jar / container",
+  "Buy eggs in a refillable egg tray",
+  "Buy bulk snacks with your own container",
+  "Bring a small reusable dessert cup + spoon",
+  "Carry a small refillable sauce container"
+];
+
 // Generate blocks dynamically
 function createBlocks() {
-  for (let i = 1; i <= 15; i++) {
-    const leftBlock = createBlock(i, `L${i}`);
-    const rightBlock = createBlock(i, `R${i}`);
+  leftItems.forEach((item, index) => {
+    const leftBlock = createBlock(index, item, 'left');
     leftContainer.appendChild(leftBlock);
+  });
+
+  rightItems.forEach((item, index) => {
+    const rightBlock = createBlock(index, item, 'right');
     rightContainer.appendChild(rightBlock);
-  }
+  });
 }
 
 // Helper to create a block element
-function createBlock(id, text) {
+function createBlock(id, text, side) {
   const block = document.createElement('div');
   block.classList.add('block');
   block.dataset.id = id;
 
+  let back_text;
+  if (side === 'left') {
+    back_text = 'Situation';
+  } else {
+    back_text = 'Solution';
+  }
+
   block.innerHTML = `
     <div class="inner">
-      <div class="front">?</div>
+      <div class="front">${back_text}</div>
       <div class="back">${text}</div>
     </div>
   `;
@@ -50,7 +98,7 @@ function shuffleBlocks(container) {
 
 // Handle block click
 function handleClick(block) {
-  if (lockBoard) return; // Prevent clicks while flipping back
+  if (lockBoard) return;
   if (block.classList.contains('paired') || block.classList.contains('open')) return;
 
   block.classList.add('open');
@@ -75,12 +123,13 @@ function checkPair() {
     selectedLeft.classList.add('paired');
     selectedRight.classList.add('paired');
     message.textContent = `Correct! (${++pairs}/15)`;
+
     selectedLeft = null;
     selectedRight = null;
   } else {
     // Wrong pair → flip back after delay
     message.textContent = 'Wrong pair!';
-    lockBoard = true; // Prevent clicking other cards
+    lockBoard = true;
 
     setTimeout(() => {
       selectedLeft.classList.remove('open');
@@ -88,7 +137,7 @@ function checkPair() {
       selectedLeft = null;
       selectedRight = null;
       lockBoard = false;
-    }, 1000); // 1 second delay
+    }, 1000);
   }
 }
 

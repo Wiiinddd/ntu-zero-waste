@@ -1,9 +1,23 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: Papyrus, fantasy;
+  font-size: 20px;
   text-align: center;
   background: #f4f4f4;
   margin: 0;
   padding: 20px;
+  background: url('gaia.jpg') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.4); /* 0.4 = 40% opacity */
+  z-index: -1; /* Behind everything */
 }
 
 h1 {
@@ -18,16 +32,17 @@ h1 {
 
 .column {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(5, auto);
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(8, auto);
   gap: 16px; 
 }
 
 .block {
-  width: 80px;
+  width: 350px;
   height: 60px;
   perspective: 800px;
   cursor: pointer;
+  box-sizing: border-box; /* include border/padding */
 }
 
 .inner {
@@ -35,7 +50,10 @@ h1 {
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.15s;
+  transition: transform 0.25s;
+  border-radius: 6px;
+  transform-origin: center center; /* fix shift when flipping */
+  box-sizing: border-box;
 }
 
 .block.open .inner,
@@ -46,8 +64,11 @@ h1 {
 .front,
 .back {
   position: absolute;
+  top: 0;      /* ensure top-left alignment */
+  left: 0;
   width: 100%;
   height: 100%;
+  box-sizing: border-box; /* include padding/border in width */
   backface-visibility: hidden;
   border: 2px solid #444;
   display: flex;
@@ -55,12 +76,22 @@ h1 {
   justify-content: center;
   font-weight: bold;
   border-radius: 6px;
+  padding: 5px;
+  text-align: center;
+}
+#left .front {
+  background-color: #ffb3b3; /* light red */
+  color: rgba(255,255,255,0.6);
+  font-weight: bold;
+  border-color: #ff6666;
 }
 
-.front {
-  background: #444;
-  color: white;
-}
+#right .front {
+  background-color: #b3d9ff; /* light blue */
+  color: rgba(255,255,255,0.6);
+  font-weight: bold;
+  border-color: #3399ff;
+} 
 
 .back {
   background: #fff;
@@ -68,8 +99,9 @@ h1 {
   transform: rotateY(180deg);
 }
 
+/* Hover effect for closed cards only */
 .block:hover:not(.paired) .front {
-  background: #666;
+  filter: brightness(1.2);
 }
 
 .paired {
@@ -82,3 +114,5 @@ h1 {
   font-weight: bold;
   font-size: 18px;
 }
+
+
